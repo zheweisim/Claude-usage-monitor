@@ -14,12 +14,20 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install dependencies
         run: npm install
 
+      - name: Generate macOS icon
+        run: |
+          # Convert SVG to 1024x1024 PNG then to icns
+          sips -s format png assets/icon.png --resampleWidth 1024 --out assets/icon_1024.png 2>/dev/null || true
+          # Use the SVG with electron-builder (it handles conversion)
+
       - name: Build macOS (universal)
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
         run: npx electron-builder --mac --x64 --arm64
 
       - name: Upload artifacts
@@ -37,7 +45,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install dependencies
         run: npm install
