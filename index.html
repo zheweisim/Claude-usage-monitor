@@ -98,7 +98,7 @@
 
     .limit-name { font-size: 11px; color: #cbd5e1; font-weight: 500; }
     .limit-pct { font-size: 11px; color: #94a3b8; font-variant-numeric: tabular-nums; }
-    .limit-reset { font-size: 9px; color: #475569; }
+    .limit-reset { font-size: 9px; color: #94a3b8; }
 
     .gauge-bg {
       height: 6px;
@@ -305,6 +305,40 @@
       transform: translateX(14px);
       background: #8b5cf6;
     }
+
+    /* Light mode */
+    body.light { color: #1e293b; }
+    body.light .container {
+      background: rgba(241, 245, 249, 0.92);
+      border-color: rgba(100, 116, 139, 0.2);
+    }
+    body.light .card {
+      background: rgba(255, 255, 255, 0.6);
+      border-color: rgba(100, 116, 139, 0.15);
+    }
+    body.light .titlebar { border-bottom-color: rgba(100, 116, 139, 0.12); }
+    body.light .titlebar h1 { color: #1e293b; }
+    body.light .card-label { color: #94a3b8; }
+    body.light .limit-name { color: #334155; }
+    body.light .limit-pct { color: #475569; }
+    body.light .limit-reset { color: #64748b; }
+    body.light .gauge-bg { background: rgba(100, 116, 139, 0.15); }
+    body.light .footer { color: #94a3b8; border-top-color: rgba(100, 116, 139, 0.1); }
+    body.light .error-msg { color: #b91c1c; background: rgba(239, 68, 68, 0.08); border-color: rgba(239, 68, 68, 0.2); }
+    body.light .settings-btn { background: rgba(100, 116, 139, 0.15); }
+    body.light .settings-btn:hover { background: rgba(100, 116, 139, 0.3); }
+    body.light .settings-btn svg { fill: #475569; }
+    body.light .settings-btn:hover svg { fill: #1e293b; }
+    body.light .settings-panel {
+      background: rgba(241, 245, 249, 0.98);
+      border-color: rgba(100, 116, 139, 0.25);
+    }
+    body.light .settings-panel label { color: #475569; }
+    body.light .toggle-row span { color: #475569; }
+    body.light .slider-val { color: #334155; }
+    body.light .slider-row input[type="range"] { background: rgba(100, 116, 139, 0.25); }
+    body.light .settings-divider { background: rgba(100, 116, 139, 0.2); }
+    body.light ::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.3); }
   </style>
 </head>
 <body>
@@ -328,6 +362,14 @@
       <div class="slider-row">
         <input type="range" id="opacity-slider" min="10" max="95" value="55">
         <span class="slider-val" id="opacity-val">55%</span>
+      </div>
+      <div class="settings-divider"></div>
+      <div class="toggle-row">
+        <span>Light mode</span>
+        <label class="toggle">
+          <input type="checkbox" id="theme-toggle">
+          <span class="toggle-track"></span>
+        </label>
       </div>
       <div class="settings-divider"></div>
       <div class="toggle-row">

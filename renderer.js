@@ -56,93 +56,6 @@ function render(data, limits) {
     html += `<div class="card"><div class="card-label">Usage Limits</div><div class="error-msg">${esc(limitsError)}</div></div>`;
   }
 
-  // -- Equivalent API cost --
-  html += `
-    <div class="card">
-      <div class="card-label">Equivalent API Cost (all sessions)</div>
-      <div class="big-stat">$${totals.cost.toFixed(2)}</div>
-      <div class="big-stat-sub">${account.name} &middot; ${account.email}</div>
-    </div>`;
-
-  // -- Session stats --
-  if (stats) {
-    html += `
-      <div class="card">
-        <div class="card-label">All-Time Stats</div>
-        <div class="stat-grid">
-          <div class="stat-item">
-            <div class="stat-val">${fmt(stats.totalMessages)}</div>
-            <div class="stat-lbl">Messages</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-val">${stats.totalSessions}</div>
-            <div class="stat-lbl">Sessions</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-val">${fmt(totals.inputTokens + totals.outputTokens)}</div>
-            <div class="stat-lbl">Total Tokens</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-val">${fmt(totals.cacheRead)}</div>
-            <div class="stat-lbl">Cache Reads</div>
-          </div>
-        </div>
-      </div>`;
-  }
-
-  // -- Model breakdown --
-  const modelEntries = Object.entries(models).sort((a, b) => b[1].costUSD - a[1].costUSD);
-  if (modelEntries.length > 0) {
-    const maxCost = modelEntries[0][1].costUSD;
-    let rows = '';
-    for (const [model, usage] of modelEntries) {
-      const shortName = model.replace('claude-', '').replace(/-\d{8}$/, '');
-      const pct = maxCost > 0 ? (usage.costUSD / maxCost) * 100 : 0;
-      rows += `
-        <div class="row">
-          <span class="row-name">${esc(shortName)}</span>
-          <span class="row-val cost">$${usage.costUSD.toFixed(2)}</span>
-        </div>
-        <div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div>`;
-    }
-    html += `<div class="card"><div class="card-label">By Model</div>${rows}</div>`;
-  }
-
-  // -- Daily activity --
-  if (stats?.dailyActivity?.length > 0) {
-    const days = stats.dailyActivity.slice(-14);
-    const maxMsg = Math.max(...days.map(d => d.messageCount));
-    let bars = '';
-    for (const day of days) {
-      const pct = maxMsg > 0 ? (day.messageCount / maxMsg) * 100 : 0;
-      const label = day.date.slice(5);
-      bars += `<div class="activity-bar" style="height:${Math.max(pct, 5)}%" data-tip="${label}: ${day.messageCount} msgs"></div>`;
-    }
-    html += `
-      <div class="card">
-        <div class="card-label">Daily Activity</div>
-        <div class="activity-chart">${bars}</div>
-        <div class="activity-labels">
-          <span>${days[0].date.slice(5)}</span>
-          <span>${days[days.length - 1].date.slice(5)}</span>
-        </div>
-      </div>`;
-  }
-
-  // -- Projects --
-  if (projects.length > 0) {
-    let rows = '';
-    for (const proj of projects) {
-      const name = proj.path.split(/[/\\]/).pop();
-      rows += `
-        <div class="row">
-          <span class="row-name" title="${esc(proj.path)}">${esc(name)}</span>
-          <span class="row-val cost">$${proj.cost.toFixed(2)}</span>
-        </div>`;
-    }
-    html += `<div class="card"><div class="card-label">By Project</div>${rows}</div>`;
-  }
-
   content.innerHTML = html;
 }
 
@@ -212,12 +125,20 @@ document.addEventListener('click', (e) => {
 });
 
 function applyOpacity(val) {
+  const isLight = document.body.classList.contains('light');
   const containerAlpha = val / 100;
   const cardAlpha = Math.max(0.05, containerAlpha * 0.6);
-  container.style.background = `rgba(15, 23, 42, ${containerAlpha})`;
-  document.querySelectorAll('.card').forEach(c => {
-    c.style.background = `rgba(30, 41, 59, ${cardAlpha})`;
-  });
+  if (isLight) {
+    container.style.background = `rgba(241, 245, 249, ${containerAlpha})`;
+    document.querySelectorAll('.card').forEach(c => {
+      c.style.background = `rgba(255, 255, 255, ${cardAlpha})`;
+    });
+  } else {
+    container.style.background = `rgba(15, 23, 42, ${containerAlpha})`;
+    document.querySelectorAll('.card').forEach(c => {
+      c.style.background = `rgba(30, 41, 59, ${cardAlpha})`;
+    });
+  }
   opacityVal.textContent = `${val}%`;
 }
 
@@ -227,6 +148,28 @@ opacitySlider.addEventListener('input', () => {
 
 opacitySlider.addEventListener('change', () => {
   window.api.saveOpacity(parseInt(opacitySlider.value));
+});
+
+// Theme toggle
+const themeToggle = document.getElementById('theme-toggle');
+
+window.api.getTheme().then(theme => {
+  if (theme === 'light') {
+    document.body.classList.add('light');
+    themeToggle.checked = true;
+    applyOpacity(parseInt(opacitySlider.value));
+  }
+});
+
+themeToggle.addEventListener('change', () => {
+  if (themeToggle.checked) {
+    document.body.classList.add('light');
+    window.api.saveTheme('light');
+  } else {
+    document.body.classList.remove('light');
+    window.api.saveTheme('dark');
+  }
+  applyOpacity(parseInt(opacitySlider.value));
 });
 
 // Auto-launch toggle

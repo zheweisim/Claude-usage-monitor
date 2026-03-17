@@ -23,6 +23,7 @@ function createWindow() {
     y: screenHeight - 540,
     transparent: true,
     frame: false,
+    thickFrame: false,
     alwaysOnTop: true,
     skipTaskbar: true,
     resizable: true,
@@ -324,6 +325,12 @@ ipcMain.handle('save-opacity', (_, val) => {
 });
 ipcMain.handle('get-auto-launch', () => getAutoLaunch());
 ipcMain.handle('set-auto-launch', (_, enabled) => setAutoLaunch(enabled));
+ipcMain.handle('get-theme', () => loadSettings().theme || 'dark');
+ipcMain.handle('save-theme', (_, theme) => {
+  const settings = loadSettings();
+  settings.theme = theme;
+  saveSettings(settings);
+});
 
 // macOS: hide dock icon
 if (process.platform === 'darwin') app.dock.hide();

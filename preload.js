@@ -7,5 +7,7 @@ contextBridge.exposeInMainWorld('api', {
   saveOpacity: (val) => ipcRenderer.invoke('save-opacity', val),
   getAutoLaunch: () => ipcRenderer.invoke('get-auto-launch'),
   setAutoLaunch: (enabled) => ipcRenderer.invoke('set-auto-launch', enabled),
+  getTheme: () => ipcRenderer.invoke('get-theme'),
+  saveTheme: (theme) => ipcRenderer.invoke('save-theme', theme),
   onRefresh: (callback) => ipcRenderer.on('refresh', callback),
 });
