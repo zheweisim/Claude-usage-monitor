@@ -162,6 +162,34 @@
     ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.2); border-radius: 2px; }
 
     /* Settings */
+    .refresh-btn {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      width: 22px;
+      height: 22px;
+      border: none;
+      background: rgba(148, 163, 184, 0.1);
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      -webkit-app-region: no-drag;
+      transition: background 0.2s;
+      z-index: 10;
+    }
+    .refresh-btn:hover { background: rgba(148, 163, 184, 0.25); }
+    .refresh-btn svg { width: 13px; height: 13px; fill: #64748b; transition: fill 0.2s; }
+    .refresh-btn:hover svg { fill: #94a3b8; }
+    .refresh-btn.spinning svg { animation: spin 0.6s linear; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    body.light .refresh-btn { background: rgba(100, 116, 139, 0.15); }
+    body.light .refresh-btn:hover { background: rgba(100, 116, 139, 0.3); }
+    body.light .refresh-btn svg { fill: #475569; }
+    body.light .refresh-btn:hover svg { fill: #1e293b; }
+
     .settings-btn {
       position: absolute;
       bottom: 10px;
@@ -188,9 +216,7 @@
       position: absolute;
       bottom: 38px;
       right: 10px;
-      background: rgba(15, 23, 42, 0.95);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: rgba(15, 23, 42, 0.98);
       border: 1px solid rgba(148, 163, 184, 0.2);
       border-radius: 8px;
       padding: 12px;
@@ -352,6 +378,10 @@
     </div>
     <div class="content" id="content"></div>
     <div class="footer" id="footer">Loading...</div>
+
+    <button class="refresh-btn" id="refresh-btn" title="Refresh">
+      <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.96 7.96 0 0 0 12 4a8 8 0 0 0-8 8 8 8 0 0 0 8 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18a6 6 0 0 1-6-6 6 6 0 0 1 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35Z"/></svg>
+    </button>
 
     <button class="settings-btn" id="settings-btn" title="Settings">
       <svg viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.53a7.76 7.76 0 0 0 .07-1 7.76 7.76 0 0 0-.07-.97l2.11-1.63a.5.5 0 0 0 .12-.64l-2-3.46a.5.5 0 0 0-.61-.22l-2.49 1a7.15 7.15 0 0 0-1.69-.98l-.38-2.65A.49.49 0 0 0 14 2h-4a.49.49 0 0 0-.49.42l-.38 2.65a7.15 7.15 0 0 0-1.69.98l-2.49-1a.5.5 0 0 0-.61.22l-2 3.46a.49.49 0 0 0 .12.64l2.11 1.63a7.76 7.76 0 0 0-.07.97 7.76 7.76 0 0 0 .07 1l-2.11 1.63a.5.5 0 0 0-.12.64l2 3.46a.5.5 0 0 0 .61.22l2.49-1a7.15 7.15 0 0 0 1.69.98l.38 2.65c.05.24.26.42.49.42h4c.24 0 .44-.18.49-.42l.38-2.65a7.15 7.15 0 0 0 1.69-.98l2.49 1a.5.5 0 0 0 .61-.22l2-3.46a.49.49 0 0 0-.12-.64l-2.11-1.63Z"/></svg>

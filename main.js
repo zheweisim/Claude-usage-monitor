@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, screen } = require('electron');
+const { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, screen, nativeTheme } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -18,12 +18,13 @@ function createWindow() {
 
   mainWindow = new BrowserWindow({
     width: 320,
-    height: 520,
+    height: 250,
     x: screenWidth - 340,
-    y: screenHeight - 540,
+    y: screenHeight - 270,
     transparent: true,
     frame: false,
-    thickFrame: false,
+    backgroundColor: '#00000000',
+    roundedCorners: false,
     alwaysOnTop: true,
     skipTaskbar: true,
     resizable: true,
@@ -37,8 +38,17 @@ function createWindow() {
     },
   });
 
+  mainWindow.removeMenu();
   mainWindow.loadFile('index.html');
   mainWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+
+  // Windows 11 DWM redraws the caption when the window loses focus on transparent
+  // frameless windows. Force a 1px repaint on blur to suppress it.
+  mainWindow.on('blur', () => {
+    const [w, h] = mainWindow.getSize();
+    mainWindow.setSize(w + 1, h);
+    mainWindow.setSize(w, h);
+  });
 
   mainWindow.on('close', (e) => {
     if (!app.isQuitting) {
@@ -336,6 +346,7 @@ ipcMain.handle('save-theme', (_, theme) => {
 if (process.platform === 'darwin') app.dock.hide();
 
 app.whenReady().then(() => {
+  nativeTheme.themeSource = 'dark';
   createWindow();
   createTray();
 });

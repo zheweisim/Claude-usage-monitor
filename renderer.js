@@ -105,6 +105,14 @@ function esc(str) {
   return d.innerHTML;
 }
 
+// -- Refresh button --
+const refreshBtn = document.getElementById('refresh-btn');
+refreshBtn.addEventListener('click', () => {
+  refreshBtn.classList.add('spinning');
+  refreshBtn.addEventListener('animationend', () => refreshBtn.classList.remove('spinning'), { once: true });
+  loadAll();
+});
+
 // -- Settings --
 const settingsBtn = document.getElementById('settings-btn');
 const settingsPanel = document.getElementById('settings-panel');
