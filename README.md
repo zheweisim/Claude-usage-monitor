@@ -1,32 +1,98 @@
 # Claude Usage Monitor
 
-A lightweight always-on-top desktop widget for Windows that shows your Claude Max plan usage limits in real time.
+A lightweight macOS menu bar widget that shows your Claude Max usage limits and token stats in real time.
 
-![Claude Usage Monitor screenshot](assets/icon.png)
+![Claude Usage Monitor](assets/icon.png)
 
 ## Features
 
-- **Live usage gauges** — Session (5h) and Weekly (7d) rate limit bars with colour coding (green → yellow → orange → red)
-- **Reset countdown** — shows exactly when each limit resets
-- **Always on top** — floats over other windows so you can glance at it without switching focus
-- **Transparent / draggable** — sits anywhere on screen, blends into your desktop
-- **Light & dark mode** — toggle between dark (default) and light themes
-- **Adjustable transparency** — slider from 10 % to 95 % opacity
-- **Run on startup** — optional auto-launch when Windows starts
-- **System tray** — minimises to tray, click the tray icon to show/hide
+- **Live usage gauges** — Session (5h) and Weekly (7d) rate limit bars with reset timers
+- **Equivalent API cost** — see how much your usage would cost at API rates
+- **All-time stats** — total messages, sessions, tokens, and cache reads
+- **Model breakdown** — usage and cost per Claude model
+- **Daily activity chart** — 14-day message history
+- **Per-project breakdown** — cost by project
+- **Adjustable transparency** — frosted glass overlay that blends with any desktop
+- **Light/dark mode** — toggle to suit your preference
+- **Always on top** — stays visible across all Spaces and full-screen apps
+- **Run on startup** — optional auto-launch at login
 
 ## Requirements
 
-- Windows 10 or 11
-- [Claude Code CLI](https://claude.ai/code) installed and logged in (`claude /login`)
-
-The app reuses the OAuth credentials stored by the Claude CLI at `~/.claude/.credentials.json`. No separate login is needed.
+- macOS (Apple Silicon or Intel)
+- [Claude Code CLI](https://claude.ai/download) installed and logged in
 
 ## Installation
 
-Download and run `Claude Usage Monitor Setup 1.0.0.exe` from the `dist/` folder (or the latest release).
+1. Download `Claude Usage Monitor-1.1.0-arm64.dmg`
+2. Open the DMG and drag **Claude Usage Monitor** into your Applications folder
+3. Launch the app
 
-The installer is a one-click NSIS installer — no admin rights required for a per-user install.
+**First launch:** macOS will block the app because it is not signed through the App Store. To open it:
+
+> System Settings → Privacy & Security → scroll down → **Open Anyway**
+
+Or right-click the app in Finder, choose **Open**, then confirm in the dialog.
+
+## Setup
+
+The app reads credentials from the Claude Code CLI. Before using it:
+
+1. Install Claude Code from https://claude.ai/download
+2. Open Terminal and run:
+   ```
+   claude
+   ```
+   Follow the login prompts. You only need to do this once.
+
+The widget will pick up your credentials automatically after that.
+
+## Usage
+
+After launching, the app lives in your **menu bar** (top-right of the screen). Click the icon to show or hide the widget.
+
+**Right-click the menu bar icon** for:
+- Show / Hide
+- Refresh
+- Quit
+
+**Inside the widget:**
+- The dot in the title bar shows status: green (ok), yellow (loading), red (error)
+- **Refresh button** (bottom-left ↺) — manually trigger a refresh
+- **Settings button** (bottom-right ⚙) — adjust transparency, switch light/dark mode, toggle run-on-startup
+
+Data auto-refreshes every **5 minutes** (live limits) and every **30 seconds** (local stats).
+
+## Gauge colours
+
+| Colour | Usage |
+|--------|-------|
+| Green | Under 50% |
+| Yellow | 50–75% |
+| Orange/Red | 75–95% |
+| Red | 95–100% |
+
+## How it works
+
+On each refresh the app makes a minimal 1-token API call using your Claude Code OAuth credentials and reads the rate-limit headers returned by the Anthropic API:
+
+| Header | What it tracks |
+|--------|----------------|
+| `anthropic-ratelimit-unified-5h-*` | Session (5-hour rolling window) |
+| `anthropic-ratelimit-unified-7d-*` | Weekly (7-day rolling window) |
+
+Local stats (token counts, project costs, daily activity) are read directly from Claude Code's local data files — no extra API calls needed.
+
+## Troubleshooting
+
+**"No Claude credentials found"**
+Log in with the Claude Code CLI first. Open Terminal and run `claude`, then follow the login flow.
+
+**Usage limits not showing**
+Rate limit headers are only returned for Claude Max subscriptions.
+
+**App won't open after install**
+macOS blocks unsigned apps by default. Go to System Settings → Privacy & Security → Open Anyway.
 
 ## Building from source
 
@@ -34,52 +100,21 @@ The installer is a one-click NSIS installer — no admin rights required for a p
 # Install dependencies
 npm install
 
-# Run in development (no installer)
+# Run in development
 npm start
 
-# Build Windows installer
-npm run build:win
+# Build macOS DMG
+npm run build:mac
 ```
 
 Requires Node.js 18+ and npm.
 
-## How it works
-
-When the widget refreshes, it makes a minimal API call (1-token message to `claude-haiku`) using your existing CLI credentials and reads the rate-limit headers returned by the Anthropic API:
-
-| Header | What it tracks |
-|--------|----------------|
-| `anthropic-ratelimit-unified-5h-*` | Session (5-hour) window |
-| `anthropic-ratelimit-unified-7d-*` | Weekly (7-day) window |
-
-Limits refresh every **5 minutes**. The status dot in the title bar pulses yellow while loading and turns red on error.
-
-## Settings
-
-Click the gear icon (bottom-right) to open the settings panel:
-
-| Setting | Description |
-|---------|-------------|
-| Transparency | Controls window opacity (10–95%) |
-| Light mode | Switches between dark and light colour scheme |
-| Run on startup | Launches the widget automatically when Windows starts |
-
-All settings are saved to `%APPDATA%\Claude Usage Monitor\settings.json`.
-
-## Tray menu
-
-Right-click the system tray icon for:
-
-- **Show / Hide** — toggle the widget
-- **Refresh** — force an immediate data refresh
-- **Quit** — exit the app
-
 ## Project structure
 
 ```
-main.js        Electron main process — window, tray, IPC, API calls
-preload.js     Context bridge — exposes safe API to renderer
-renderer.js    UI logic — rendering, settings, theme, opacity
-index.html     HTML structure and all CSS styles
-assets/        App icons
+main.js       Electron main process — window, tray, IPC, API calls, credentials
+preload.js    Context bridge — exposes safe API to renderer
+renderer.js   UI logic — rendering, settings, theme, opacity
+index.html    HTML structure and CSS styles
+assets/       App icons
 ```

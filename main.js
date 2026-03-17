@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 const https = require('https');
+const { execSync } = require('child_process');
 
 let mainWindow;
 let tray;
@@ -129,14 +130,29 @@ function httpsRequest(url, options, body = null) {
 // --- OAuth token management ---
 
 function readCredentials() {
+  // Try file first
   try {
     return JSON.parse(fs.readFileSync(CREDS_PATH, 'utf-8'));
-  } catch {
-    return null;
-  }
+  } catch {}
+
+  // Fall back to macOS Keychain (newer Claude Code versions)
+  try {
+    const raw = execSync('security find-generic-password -s "Claude Code-credentials" -w', { timeout: 5000 }).toString().trim();
+    return JSON.parse(raw);
+  } catch {}
+
+  return null;
 }
 
 function writeCredentials(creds) {
+  // Try to write back to wherever we read from
+  try {
+    // Try keychain first if file doesn't exist
+    if (!fs.existsSync(CREDS_PATH)) {
+      execSync(`security add-generic-password -U -s "Claude Code-credentials" -w '${JSON.stringify(creds).replace(/'/g, "'\\''")}'`, { timeout: 5000 });
+      return;
+    }
+  } catch {}
   fs.writeFileSync(CREDS_PATH, JSON.stringify(creds));
 }
 
