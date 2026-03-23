@@ -225,7 +225,7 @@ async function fetchRateLimits() {
     };
   }
 
-  // Weekly (7d) limit
+  // Weekly (7d) limit - all models
   if (h['anthropic-ratelimit-unified-7d-utilization'] !== undefined) {
     limits.weekly = {
       utilization: parseFloat(h['anthropic-ratelimit-unified-7d-utilization']) * 100,
